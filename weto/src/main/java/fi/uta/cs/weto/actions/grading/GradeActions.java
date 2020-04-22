@@ -334,6 +334,7 @@ public class GradeActions
     private Integer receiverId;
     private Integer reviewerId;
     private boolean withReview;
+    private boolean withNotification;
     private ArrayList<UserTaskView> users;
     private UserTaskView receiver;
     private Scoring scoring;
@@ -400,7 +401,9 @@ public class GradeActions
           tag.insert(conn);
         }
 
-        createNotifications();
+        if (withNotification) {
+          createNotifications();
+        }
 
         // Add the create grade event to the log.
         if(!getNavigator().isStudentRole())
@@ -465,6 +468,16 @@ public class GradeActions
     public void setWithReview(boolean withReview)
     {
       this.withReview = withReview;
+    }
+
+    public boolean isWithNotification()
+    {
+      return withNotification;
+    }
+
+    public void setWithNotification(boolean withNotification)
+    {
+      this.withNotification = withNotification;
     }
 
     public ArrayList<UserTaskView> getUsers()

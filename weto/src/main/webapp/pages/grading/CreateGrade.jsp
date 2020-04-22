@@ -62,6 +62,12 @@
         <input type="checkbox" name="withReview" value="true" />
       </td>
     </tr>
+    <tr>
+      <td><s:text name="grading.header.withNotification" /></td>
+      <td>
+        <input type="checkbox" name="withNotification" value="true" />
+      </td>
+    </tr>
   </table>
   <input type="submit" value="<s:text name="general.header.create" />" class="linkButton" />
 </form>
