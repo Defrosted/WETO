@@ -4,16 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fi.uta.cs.sqldatamodel.NoSuchItemException;
 import fi.uta.cs.weto.actions.forum.ForumActions.ForumBean;
-import fi.uta.cs.weto.db.Document;
-import fi.uta.cs.weto.db.Grade;
-import fi.uta.cs.weto.db.Log;
-import fi.uta.cs.weto.db.Scoring;
-import fi.uta.cs.weto.db.Submission;
-import fi.uta.cs.weto.db.Tag;
-import fi.uta.cs.weto.db.TagView;
-import fi.uta.cs.weto.db.Task;
-import fi.uta.cs.weto.db.UserAccount;
-import fi.uta.cs.weto.db.UserTaskView;
+import fi.uta.cs.weto.db.*;
 import fi.uta.cs.weto.model.CSVReview;
 import fi.uta.cs.weto.model.ClusterType;
 import fi.uta.cs.weto.model.GradeStatus;
@@ -408,6 +399,9 @@ public class GradeActions
           tag.setAuthorId(reviewerId);
           tag.insert(conn);
         }
+
+        createNotifications();
+
         // Add the create grade event to the log.
         if(!getNavigator().isStudentRole())
         {
@@ -416,6 +410,30 @@ public class GradeActions
                   .insert(conn);
         }
         return (submissionId == null) ? SUCCESS : "submission";
+      }
+    }
+
+    private void createNotifications() {
+      Connection masterConnection = getMasterConnection();
+      Connection courseConnection = getCourseConnection();
+
+      try {
+        // Map values that will be put to the notification template
+        HashMap<String, String> valueMap = new HashMap<>();
+        valueMap.put("&task;", getTask().getName());
+        valueMap.put("&course;", getCourseName());
+
+        String notificationMessage = Notification.getMessageFromTemplate(Notification.GRADE_ADDED, valueMap);
+
+        CourseImplementation masterCourse = CourseImplementation.select1ByDatabaseIdAndCourseTaskId(masterConnection, getDbId(), getCourseTaskId());
+
+        UserAccount user = UserAccount.select1ById(courseConnection, receiverId);
+        UserAccount masterUser = UserAccount.select1ByLoginName(masterConnection, user.getLoginName());
+
+        Notification notification = new Notification(masterUser.getId(), masterCourse.getMasterTaskId(), Notification.GRADE_ADDED);
+        notification.setMessage(notificationMessage);
+        notification.createNotification(masterConnection, courseConnection);
+      } catch (Exception ignored) {
       }
     }
 

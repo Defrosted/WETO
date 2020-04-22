@@ -18,12 +18,14 @@ import java.util.List;
 
 public class Notification extends SqlAssignableObject implements Cloneable {
     public static final String FORUM_POST = "forum_post";
+    public static final String GRADE_ADDED = "grade_added";
 
     // Create a list of the different types
     public static final List<String> notificationTypes;
     static {
         List<String> typeList = new ArrayList<>();
         typeList.add(FORUM_POST);
+        typeList.add(GRADE_ADDED);
         notificationTypes = Collections.unmodifiableList(typeList);
     }
 
